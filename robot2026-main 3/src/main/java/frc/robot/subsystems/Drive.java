@@ -7,8 +7,6 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants.DriveConstants;
-
 import static frc.robot.Constants.DriveConstants.*;
 
 
@@ -21,40 +19,33 @@ public class Drive extends SubsystemBase {
         
     private final DifferentialDrive drive = new DifferentialDrive(leftForwardMotor, rightForwardMotor);
     
-    SlewRateLimiter forwardLimits = new SlewRateLimiter(DriveConstants.slewLimits);
-    SlewRateLimiter turnLimits = new SlewRateLimiter(DriveConstants.slewLimits);
-
-
-    // private final static Drive INSTANCE = new Drive();
-
-    // public static Drive getInstance() {
-    //     return INSTANCE;
-    // }
+    SlewRateLimiter forwardSlewLimits = new SlewRateLimiter(slewLimits);
+    SlewRateLimiter turnSlewLimits = new SlewRateLimiter(slewLimits);
 
     public Drive() {
 
-        SparkMaxConfig baseConfig = new SparkMaxConfig();
-        baseConfig.smartCurrentLimit(maxCurrent);
-        baseConfig.idleMode(idleMode);
-        baseConfig.voltageCompensation(nominalVoltage);
+        SparkMaxConfig baseDriveConfig = new SparkMaxConfig();
+        baseDriveConfig.smartCurrentLimit(maxCurrent);
+        baseDriveConfig.idleMode(idleMode);
+        baseDriveConfig.voltageCompensation(nominalVoltage);
 
         // yes i can just apply the baseconfig straight to the motor, no i will not do it
         SparkMaxConfig leftForwardConfig = new SparkMaxConfig();
-        leftForwardConfig.apply(baseConfig);
+        leftForwardConfig.apply(baseDriveConfig);
         leftForwardMotor.configure(leftForwardConfig, noReset, persist);
 
         SparkMaxConfig leftRearConfig = new SparkMaxConfig();
-        leftRearConfig.apply(baseConfig);
+        leftRearConfig.apply(baseDriveConfig);
         leftRearConfig.follow(leftForwardMotor);
         leftRearMotor.configure(leftRearConfig, noReset, persist);
 
         SparkMaxConfig rightForwardConfig = new SparkMaxConfig();
-        rightForwardConfig.apply(baseConfig);
-        rightForwardConfig.inverted(true); 
+        rightForwardConfig.apply(baseDriveConfig);
+        rightForwardConfig.inverted(true);
         rightForwardMotor.configure(rightForwardConfig, noReset, persist);
 
         SparkMaxConfig rightRearConfig = new SparkMaxConfig();
-        rightRearConfig.apply(baseConfig);
+        rightRearConfig.apply(baseDriveConfig);
         rightRearConfig.follow(rightForwardMotor);
         rightRearMotor.configure(rightRearConfig, noReset, persist);
 
@@ -72,8 +63,8 @@ public class Drive extends SubsystemBase {
         rotate = Math.copySign(rotate * rotate, rotate);
 
         // slew limiting or whatever that is the guide said so
-        speed = forwardLimits.calculate(speed);
-        rotate = turnLimits.calculate(rotate);
+        speed = forwardSlewLimits.calculate(speed);
+        rotate = turnSlewLimits.calculate(rotate);
 
         drive.arcadeDrive(speed, rotate);
 

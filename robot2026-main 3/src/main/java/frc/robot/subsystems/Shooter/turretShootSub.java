@@ -4,24 +4,47 @@
 
 package frc.robot.subsystems.Shooter;
 
+import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.wpilibj.motorcontrol.Spark;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import static frc.robot.Constants.DriveConstants.*;
 import static frc.robot.Constants.ShooterConstants.*;
 
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
-
+import com.revrobotics.spark.config.SparkMaxConfig;
 
 public class turretShootSub extends SubsystemBase {
   SparkMax turretMotor = new SparkMax(shooterMotorChannel, brushless);
   SparkMax tunnelMotor = new SparkMax(tunnelMotorChannel, brushless);
   // can do manually but add the brake
-  // tell to set the id to brake it
+  // tell to set the id to brake it (only feeder) should allow them to stop balls coming in but keep the wheel spinning
   
-  /** Creates a new turretShootSub. */
+  /* Creates a new turretShootSub. */
+
+  public turretShootSub() {
+    SparkMaxConfig baseConfig = new SparkMaxConfig();
+        baseConfig.smartCurrentLimit(maxCurrent);
+        baseConfig.idleMode(idleMode);
+        baseConfig.voltageCompensation(nominalVoltage);
+        baseConfig.openLoopRampRate(0.5);
+  
+    SparkMaxConfig brakeConfig = new SparkMaxConfig();
+      brakeConfig.apply(baseConfig);
+      brakeConfig.idleMode(brakeMode);
 
 
-  public turretShootSub() {}
+
+
+    SparkMaxConfig shootMotorConfig = new SparkMaxConfig();
+      shootMotorConfig.apply(baseConfig);
+    
+    SparkMaxConfig turretMotorConfig = new SparkMaxConfig();
+      turretMotorConfig.apply(baseConfig);
+     
+    SparkMaxConfig tunnelMotorConfig = new SparkMaxConfig();  
+      tunnelMotorConfig.apply(baseConfig);
+  }
 
   public void prep(double turret) {
     turretMotor.set(turret);

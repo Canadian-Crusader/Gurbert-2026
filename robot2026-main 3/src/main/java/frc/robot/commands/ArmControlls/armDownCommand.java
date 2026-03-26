@@ -5,21 +5,28 @@
 package frc.robot.commands.ArmControlls;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.subsystems.armSub;
+
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class armDownCommand extends Command {
-  /** Creates a new armDownCommand. */
-  public armDownCommand() {
-    // Use addRequirements() here to declare subsystem dependencies.
+  armSub armSubsystem;
+  public armDownCommand(armSub armSubSystem) {
+    this.armSubsystem = armSubSystem;
+    addRequirements(armSubsystem);
+    // Use addRequirements() here to declare subsystem dependencies. (I don't remeber putting this here?)
   }
+ 
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {}
+  public void initialize() {
+    armSubsystem.moveArm(0.5);
+  }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
-  public void execute() {}
+  public void execute() {armSubsystem.moveArm(0.5);}
 
   // Called once the command ends or is interrupted.
   @Override
