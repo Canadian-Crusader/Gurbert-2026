@@ -4,67 +4,55 @@
 
 package frc.robot.subsystems.Shooter;
 
-import edu.wpi.first.math.filter.SlewRateLimiter;
-import edu.wpi.first.wpilibj.motorcontrol.Spark;
+import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import static frc.robot.Constants.DriveConstants.*;
 import static frc.robot.Constants.ShooterConstants.*;
 
-import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
-import com.revrobotics.spark.config.SparkMaxConfig;
-
 public class turretShootSub extends SubsystemBase {
-  SparkMax turretMotor = new SparkMax(shooterMotorChannel, brushless);
-  SparkMax tunnelMotor = new SparkMax(tunnelMotorChannel, brushless);
-  // can do manually but add the brake
-  // tell to set the id to brake it (only feeder) should allow them to stop balls coming in but keep the wheel spinning
-  
-  /* Creates a new turretShootSub. */
 
-  public turretShootSub() {
-    SparkMaxConfig baseConfig = new SparkMaxConfig();
-        baseConfig.smartCurrentLimit(maxCurrent);
-        baseConfig.idleMode(idleMode);
-        baseConfig.voltageCompensation(nominalVoltage);
-        baseConfig.openLoopRampRate(0.5);
-  
-    SparkMaxConfig brakeConfig = new SparkMaxConfig();
-      brakeConfig.apply(baseConfig);
-      brakeConfig.idleMode(brakeMode);
+    SparkMax turretMotor = new SparkMax(shooterMotorChannel, brushless);
+    SparkMax tunnelMotor = new SparkMax(tunnelMotorChannel, brushless);
 
+    public turretShootSub() {
+        // Flywheel motor — coast so it spins down freely; ramp rate limits current spike on spin-up
+        SparkMaxConfig shooterConfig = new SparkMaxConfig();
+        shooterConfig.smartCurrentLimit(maxCurrent);
+        shooterConfig.idleMode(idleMode);            // coast
+        shooterConfig.voltageCompensation(nominalVoltage);
+        shooterConfig.openLoopRampRate(RAMP_RATE_SEC); // tune in ShooterConstants
+        turretMotor.configure(shooterConfig, noReset, persist);
 
+        // Tunnel (feeder) motor — brake so balls don't drift back when idle
+        SparkMaxConfig tunnelConfig = new SparkMaxConfig();
+        tunnelConfig.smartCurrentLimit(maxCurrent);
+        tunnelConfig.idleMode(brakeMode);            // brake
+        tunnelConfig.voltageCompensation(nominalVoltage);
+        tunnelMotor.configure(tunnelConfig, noReset, persist);
+    }
 
+    /** Spins the flywheel at the given speed (0.0 – 1.0). */
+    public void prep(double speed) {
+        turretMotor.set(speed);
+    }
 
-    SparkMaxConfig shootMotorConfig = new SparkMaxConfig();
-      shootMotorConfig.apply(baseConfig);
-    
-    SparkMaxConfig turretMotorConfig = new SparkMaxConfig();
-      turretMotorConfig.apply(baseConfig);
-     
-    SparkMaxConfig tunnelMotorConfig = new SparkMaxConfig();  
-      tunnelMotorConfig.apply(baseConfig);
-  }
+    /** Returns the last commanded flywheel output (0.0 – 1.0). */
+    public double getSpeed() {
+        return turretMotor.get();
+    }
 
-  public void prep(double turret) {
-    turretMotor.set(turret);
-  }
-  
-  public double getSpeed() {
-    return turretMotor.get();
-  }
+    /** Runs the tunnel/feeder motor at the given speed (0.0 – 1.0). */
+    public void startTunnel(double speed) {
+        tunnelMotor.set(speed);
+    }
 
-  public void startTunnel(double Tunnel) {
-    tunnelMotor.set(Tunnel);
-  }
+    /** Stops both the flywheel and the tunnel. */
+    public void stopShoot() {
+        turretMotor.stopMotor();
+        tunnelMotor.stopMotor();
+    }
 
-  public void stopShoot() {
-    turretMotor.stopMotor();
-    tunnelMotor.stopMotor();
-  } // velocity control
-    // 
-  @Override
-  public void periodic() {
-    // This method will be called once per scheduler run
-  }
+    @Override
+    public void periodic() {}
 }

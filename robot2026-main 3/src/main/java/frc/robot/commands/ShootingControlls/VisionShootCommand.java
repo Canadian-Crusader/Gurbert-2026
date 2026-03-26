@@ -3,6 +3,7 @@ package frc.robot.commands.ShootingControlls;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Shooter.turretShootSub;
 import frc.robot.subsystems.VisionSubsystem;
+import static frc.robot.Constants.ShooterConstants.*;
 
 public class VisionShootCommand extends Command {
 
@@ -32,7 +33,7 @@ public class VisionShootCommand extends Command {
         // Wait for the wheel to get close to target speed before feeding balls
         // getSpeed() returns the current commanded output which ramps up via openLoopRampRate
         if (shooter.getSpeed() >= targetSpeed * 0.9) {
-            shooter.startTunnel(0.8);
+            shooter.startTunnel(TUNNEL_SPEED);
         }
     }
 

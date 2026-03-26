@@ -9,7 +9,6 @@ import frc.robot.commands.Autos;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.commands.ShootingControlls.AutoAimCommand;
 import frc.robot.commands.ShootingControlls.ConveyCommand;
-import frc.robot.commands.ShootingControlls.ShootCommand;
 import frc.robot.commands.ShootingControlls.VisionShootCommand;
 import frc.robot.commands.ShootingControlls.turnTableCommand;
 import frc.robot.commands.ArmControlls.armCollectCommand;
@@ -23,134 +22,92 @@ import frc.robot.subsystems.Shooter.turretShootSub;
 import frc.robot.subsystems.Drive;
 import frc.robot.subsystems.Shooter.turretTurnSub;
 
-
 import edu.wpi.first.wpilibj.PS5Controller;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.RunCommand;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 
-
-/**
- * This class is where the bulk of the robot should be declared. Since Command-based is a
- * "declarative" paradigm, very little robot logic should actually be handled in the {@link Robot}
- * periodic methods (other than the scheduler calls). Instead, the structure of the robot (including
- * subsystems, commands, and trigger mappings) should be declared here.
- */
 public class RobotContainer {
-  // The robot's subsystems and commands are defined here... (Just Drive for command)
-  private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
-  private final Drive drive = new Drive();
-  private final turretShootSub turretShootSubSystem = new turretShootSub();
-  private final conveySubSystem conveySubSystem = new conveySubSystem();
-  private final armSub armSub = new armSub();
-  private final turretTurnSub turretTurnSub = new turretTurnSub();
-  private final VisionSubsystem visionSubsystem = new VisionSubsystem();
 
-  // Replace with CommandPS4Controller or CommandJoystick if needed
+  // Subsystems — VisionSubsystem must be declared before Drive (passed into Drive constructor)
+  private final ExampleSubsystem m_exampleSubsystem   = new ExampleSubsystem();
+  private final VisionSubsystem  visionSubsystem      = new VisionSubsystem();
+  private final Drive            drive                = new Drive(visionSubsystem);
+  private final turretShootSub   turretShootSubSystem = new turretShootSub();
+  private final conveySubSystem  conveySubSystem      = new conveySubSystem();
+  private final armSub           armSub               = new armSub();
+  private final turretTurnSub    turretTurnSub        = new turretTurnSub();
+
+  // Kept as a field so toggleOnTrue can track the same instance across presses
+  private final AutoAimCommand autoAimCommand = new AutoAimCommand(turretTurnSub, visionSubsystem);
+
   private final PS5Controller controller =
-    new PS5Controller(OperatorConstants.driverControllerPort);
+      new PS5Controller(OperatorConstants.driverControllerPort);
 
-  /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-    // Configure the trigger bindings
     configureBindings();
 
-   // controller.R1.whileTrue(new ShootCommand(conveySubSystem, true));
     drive.setDefaultCommand(
-      new RunCommand(
-        () -> drive.arcadeDrive( 
-          -controller.getRightX(),
-          controller.getLeftY()
-        ),
-        drive
-      )
+        new RunCommand(
+            () -> drive.arcadeDrive(
+                -controller.getRightX(),
+                 controller.getLeftY()
+            ),
+            drive
+        )
     );
-
-
-
-  
   }
 
-  /**
-   * Use this method to define your trigger->command mappings. Triggers can be created via the
-   * {@link Trigger#Trigger(java.util.function.BooleanSupplier)} constructor with an arbitrary
-   * predicate, or via the named factories in {@link
-   * edu.wpi.first.wpilibj2.command.button.CommandGenericHID}'s subclasses for {@link
-   * CommandXboxController Xbox}/{@link edu.wpi.first.wpilibj2.command.button.CommandPS4Controller
-   * PS4} controllers or {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight
-   * joysticks}.
-   */
-
-
-
-
-   // ALL THE BUTTONS ARE DEFINED HERE ============= ALL BUTTONS ARE DEFINED HERE ============= ALL BUTTONS ARE DEFINED HERE ============= ALL BUTTONS ARE DEFINED HERE
+  // ALL THE BUTTONS ARE DEFINED HERE ================================================
   private void configureBindings() {
-    // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
-    // TRIGGERS ========= TRIGGERS ========== TRIGGERS ========= TRIGGERS ========== TRIGGERS ========= TRIGGERS ==========
-    new Trigger(() -> controller.getR2Axis() > 0.2)
-    .whileTrue(new ParallelCommandGroup( // fixxed this
-        new ShootCommand(turretShootSubSystem, true),
-        new ConveyCommand(conveySubSystem)
-    ));
-    new Trigger(() -> controller.getL2Axis() > 0.2)
-     .whileTrue(new armCollectCommand(armSub));
-    
 
-    new Trigger(m_exampleSubsystem::exampleCondition)
-        .toggleOnTrue(new ExampleCommand(m_exampleSubsystem));
-// BUMPERS ======== BUMPERS ======== BUMPERS ======== BUMPERS ======== BUMPERS ======== BUMPERS ======== BUMPERS ===========
-    // Triangle = auto aim turret + auto power shooter based on distance
-    new Trigger(controller::getTriangleButton)
+    // TRIGGERS ========================================================================
+    // R2 (held): Shoot + Convey
+    // VisionShootCommand sets flywheel speed from camera distance.
+    // When no target is visible it spins to full power so you're ready to shoot.
+    new Trigger(() -> controller.getR2Axis() > 0.2)
         .whileTrue(new ParallelCommandGroup(
-            new AutoAimCommand(turretTurnSub, visionSubsystem),
-            new VisionShootCommand(turretShootSubSystem, visionSubsystem)
+            new VisionShootCommand(turretShootSubSystem, visionSubsystem),
+            new ConveyCommand(conveySubSystem)
         ));
 
-    new Trigger (controller::getR1Button)
+    // L2 (held): Arm collect
+    new Trigger(() -> controller.getL2Axis() > 0.2)
+        .whileTrue(new armCollectCommand(armSub));
+
+    // FACE BUTTONS ====================================================================
+    // Triangle (toggle): Auto-aim — turret tracks the vision target while active.
+    // Press once to lock on, press again to stop tracking.
+    new Trigger(controller::getTriangleButton)
+        .toggleOnTrue(autoAimCommand);
+
+    // BUMPERS =========================================================================
+    // R1 / L1 (held): Manual turret rotation.
+    // Blocked when auto-aim is active — vision takes priority over manual turn.
+    new Trigger(controller::getR1Button)
+        .and(() -> !autoAimCommand.isScheduled())
         .whileTrue(new turnTableCommand(turretTurnSub, false));
 
-    new Trigger (controller::getL1Button)
+    new Trigger(controller::getL1Button)
+        .and(() -> !autoAimCommand.isScheduled())
         .whileTrue(new turnTableCommand(turretTurnSub, true));
-    
-// DPAD ============== DPAD ============== DPAD ============== DPAD ============== DPAD ============== DPAD ================ 
-    //Create a trigger for the "Down" D-pad button (180 degrees)
-   new Trigger (() -> controller.getPOV() == 1)
-       .whileTrue(new armUpCommand(armSub));
+
+    // D-PAD ===========================================================================
+    // D-pad Up   (POV 0):   Raise arm
+    // D-pad Down (POV 180): Lower arm
+    new Trigger(() -> controller.getPOV() == 0)
+        .whileTrue(new armUpCommand(armSub));
+
     new Trigger(() -> controller.getPOV() == 180)
         .whileTrue(new armDownCommand(armSub));
 
-    
-
-    
-    // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed,
-    // cancelling on release.
-    if(controller.getCrossButton()){
-
-    }
+    // EXAMPLE =========================================================================
+    new Trigger(m_exampleSubsystem::exampleCondition)
+        .toggleOnTrue(new ExampleCommand(m_exampleSubsystem));
   }
 
-  /**
-   * Use this to pass the autonomous command to the main {@link Robot} class.
-   *
-   * @return the command to run in autonomous
-   */
-  public Command getAutonomousCommand(){
-    // An example command will be run in autonomous
-    // new SequentialCommandGroup( 
-
-    //  new armDownCommand(armSub).withTimeout(1.0),
-      
-    //   new RunCommand (() -> drive.arcadeDrive(0.5,0), drive).withTimeout(5)
-  //  );
-  
-
-
+  public Command getAutonomousCommand() {
     return Autos.exampleAuto(m_exampleSubsystem);
   }
 }
-

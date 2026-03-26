@@ -5,8 +5,8 @@
 package frc.robot.commands.ShootingControlls;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Subsystem;
 import frc.robot.subsystems.Shooter.turretShootSub;
+import static frc.robot.Constants.ShooterConstants.*;
 
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
@@ -25,7 +25,7 @@ public static boolean shoot;
   // Called when the command is initially scheduled.
   @Override
  public void initialize() {
-    turretShootSubSystem.prep(0.8);
+    turretShootSubSystem.prep(SHOOTER_SPEED);
    
   }
 
@@ -33,8 +33,8 @@ public static boolean shoot;
   @Override
   public void execute() {
 
-    if (turretShootSubSystem.getSpeed() > 0.75) {
-      turretShootSubSystem.startTunnel(0.8);
+    if (turretShootSubSystem.getSpeed() >= SHOOTER_SPEED * 0.95) {
+      turretShootSubSystem.startTunnel(TUNNEL_SPEED);
       
     }
 

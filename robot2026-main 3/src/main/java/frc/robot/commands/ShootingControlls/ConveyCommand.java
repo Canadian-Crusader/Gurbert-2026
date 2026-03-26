@@ -6,6 +6,7 @@ package frc.robot.commands.ShootingControlls;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.conveySubSystem;
+import static frc.robot.Constants.ShooterConstants.*;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class ConveyCommand extends Command {
@@ -20,13 +21,13 @@ public class ConveyCommand extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    c.setSpeed(0.7);
+    c.setSpeed(CONVEY_SPEED);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    c.setSpeed(0.7);
+    c.setSpeed(CONVEY_SPEED);
   }
 
   // Called once the command ends or is interrupted.

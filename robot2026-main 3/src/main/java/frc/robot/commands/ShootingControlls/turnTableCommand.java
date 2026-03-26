@@ -5,8 +5,8 @@
 package frc.robot.commands.ShootingControlls;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.Shooter.turretShootSub;
 import frc.robot.subsystems.Shooter.turretTurnSub;
+import static frc.robot.Constants.TurretConstants.*;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class turnTableCommand extends Command {
@@ -32,9 +32,9 @@ public class turnTableCommand extends Command {
   @Override
   public void execute() {
     if (turnLeft) {
-      turnSub.turnLeft(0.5);
+      turnSub.turnLeft(MANUAL_SPEED);
     } else {
-      turnSub.turnRight(0.5);
+      turnSub.turnRight(MANUAL_SPEED);
     }
   }
 
