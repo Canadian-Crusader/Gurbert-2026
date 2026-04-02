@@ -30,6 +30,7 @@ public class turretShootSub extends SubsystemBase {
         tunnelConfig.idleMode(brakeMode);            // brake
         tunnelConfig.voltageCompensation(nominalVoltage);
         tunnelMotor.configure(tunnelConfig, noReset, persist);
+        turretMotor.setInverted(true);
     }
 
     /** Spins the flywheel at the given speed (0.0 – 1.0). */

@@ -30,7 +30,7 @@ public class AutoAimCommand extends Command {
 
         // PID output: negative when target is right (yaw > 0), positive when target is left (yaw < 0)
         // We negate it so: target right → positive output → turn right, target left → negative → turn left
-        double output = -pid.calculate(vision.getYaw());
+        double output = -pid.calculate(vision.getTurn());
         output = Math.max(-1.0, Math.min(1.0, output)); // clamp to motor range
 
         if (output > 0) {

@@ -29,20 +29,6 @@ public static class DriveConstants {
     public static final int    maxCurrent    = 40;
     public static final double nominalVoltage = 12.0;
 
-    // =================== TUNE THESE (odometry) ===================
-    // Wheel diameter including tread — measure with a ruler (meters)
-    public static final double WHEEL_DIAMETER_METERS = 0.1016; // 4-inch wheels <<< MEASURE
-
-    // Drive gear ratio — motor rotations per one wheel rotation
-    public static final double DRIVE_GEAR_RATIO      = 8.45;   // <<< UPDATE when confirmed
-
-    // Center-to-center distance between left and right wheels (meters)
-    public static final double TRACK_WIDTH_METERS    = 0.55;   // <<< MEASURE
-
-    // Derived: motor rotations → wheel travel in meters (do not edit directly)
-    public static final double DRIVE_POS_FACTOR =
-        (Math.PI * WHEEL_DIAMETER_METERS) / DRIVE_GEAR_RATIO;
-    // ===============================================================
 
     public static SparkMaxConfig getBasicMotorConfig() {
         SparkMaxConfig cfg = new SparkMaxConfig();
@@ -55,30 +41,28 @@ public static class DriveConstants {
 
 // Arm ================ Arm ================ Arm ================ Arm ================ Arm ================
 public static class ArmConstants {
-    public static final int armMoveMotorChannel = 11; // tbd
-    public static final int armMotorChannel     = 15; // tbd
+    public static final int armMoveMotorChannel = 5; // tbd
+    public static final int armMotorChannel     = 6; // tbd
 }
 
 // Intake ================ Intake ================ Intake ================ Intake ================
 public static class IntakeConstants {
-    public static final int intakeMotorChannel  = 10; // tbd
-    public static final int bedMotorChannel     = 18; // tbd
-    public static final int backendMotorChannel = 21; // tbd
+    public static final int bedMotorChannel     = 7; //
 }
 
 // Shooter ================ Shooter ================ Shooter ================ Shooter ================
 public static class ShooterConstants {
     // Motor CAN IDs
-    public static final int shooterMotorChannel   = 30; // tbd
-    public static final int tunnelMotorChannel    = 32; // tbd
-    public static final int turntableMotorChannel = 26; // tbd
+    public static final int shooterMotorChannel   = 8; // tbd
+    public static final int tunnelMotorChannel    = 9; // tbd
+    public static final int turntableMotorChannel = 11; // tbd
 
     // =================== TUNE THESE ===================
     // Flywheel speed for manual shooting (0.0 – 1.0)
-    public static final double SHOOTER_SPEED  = 0.8;  // <<< TUNE
+    public static final double SHOOTER_SPEED  = 0.8;  // all good could change though example for testing
 
     // Tunnel (feeder) speed (0.0 – 1.0)
-    public static final double TUNNEL_SPEED   = 0.8;  // <<< TUNE
+    public static final double TUNNEL_SPEED   = 0.75;  // could change
 
     // Conveyor belt speed (0.0 – 1.0)
     public static final double CONVEY_SPEED   = 0.7;  // <<< TUNE
@@ -93,8 +77,7 @@ public static class TurretConstants {
     // =================== TUNE THESE ===================
 
     // Gear ratio: motor rotations per one full turret rotation
-    // ~8.45:1 estimated — measure on the robot and update before competition
-    public static final double GEAR_RATIO = 8.45; // <<< UPDATE when confirmed
+    public static final double GEAR_RATIO = 16.0; // AndyMark 16:1
 
     // Soft limits in degrees from center-forward (0°).
     // Positive = right, negative = left.

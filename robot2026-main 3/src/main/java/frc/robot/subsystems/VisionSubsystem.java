@@ -73,9 +73,11 @@ public class VisionSubsystem extends SubsystemBase {
      * Positive = target is to the right of center, negative = left.
      * Returns 0 if no target.
      */
-    public double getYaw() {
+    public double getTurn() {
         if (latestTarget == null) return 0.0;
-        return latestTarget.getYaw();
+        // Camera is mounted 90° sideways, so pitch = real-world horizontal angle.
+        // If the turret corrects the wrong direction, negate this value.
+        return latestTarget.getPitch();
     }
 
     /**

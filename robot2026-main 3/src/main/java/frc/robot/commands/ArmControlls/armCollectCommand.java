@@ -17,13 +17,13 @@ public class armCollectCommand extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    armSubsystem.spinArm(0.5);
+    armSubsystem.spinArm(0.3);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    armSubsystem.spinArm(0.5);
+    armSubsystem.spinArm(0.3);
   }
 
   // Called once the command ends or is interrupted.

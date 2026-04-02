@@ -25,21 +25,21 @@ public class VisionShootCommand extends Command {
             targetSpeed = vision.getShooterSpeed(vision.getDistance());
         } else {
             // No target visible — spin up to max so we're ready when target appears
-            targetSpeed = 1.0;
+            targetSpeed = 0.8;
         }
 
         shooter.prep(targetSpeed);
 
         // Wait for the wheel to get close to target speed before feeding balls
         // getSpeed() returns the current commanded output which ramps up via openLoopRampRate
-        if (shooter.getSpeed() >= targetSpeed * 0.9) {
-            shooter.startTunnel(TUNNEL_SPEED);
+        if (shooter.getSpeed() >= targetSpeed * 0.9) { // gets up to 90% then starts feeding
+            shooter.startTunnel(TUNNEL_SPEED); // starts feeding turret
         }
     }
 
     @Override
     public void end(boolean interrupted) {
-        shooter.stopShoot();
+        shooter.stopShoot(); // will stop shooting (on coast) and stop feeding (on brake)
     }
 
     @Override

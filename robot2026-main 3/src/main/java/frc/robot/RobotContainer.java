@@ -6,7 +6,6 @@ package frc.robot;
 
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Autos;
-import frc.robot.commands.ExampleCommand;
 import frc.robot.commands.ShootingControlls.AutoAimCommand;
 import frc.robot.commands.ShootingControlls.ConveyCommand;
 import frc.robot.commands.ShootingControlls.VisionShootCommand;
@@ -14,7 +13,6 @@ import frc.robot.commands.ShootingControlls.turnTableCommand;
 import frc.robot.commands.ArmControlls.armCollectCommand;
 import frc.robot.commands.ArmControlls.armDownCommand;
 import frc.robot.commands.ArmControlls.armUpCommand;
-import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.VisionSubsystem;
 import frc.robot.subsystems.armSub;
 import frc.robot.subsystems.conveySubSystem;
@@ -31,9 +29,8 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 public class RobotContainer {
 
   // Subsystems — VisionSubsystem must be declared before Drive (passed into Drive constructor)
-  private final ExampleSubsystem m_exampleSubsystem   = new ExampleSubsystem();
   private final VisionSubsystem  visionSubsystem      = new VisionSubsystem();
-  private final Drive            drive                = new Drive(visionSubsystem);
+  private final Drive            drive                = new Drive();
   private final turretShootSub   turretShootSubSystem = new turretShootSub();
   private final conveySubSystem  conveySubSystem      = new conveySubSystem();
   private final armSub           armSub               = new armSub();
@@ -102,12 +99,9 @@ public class RobotContainer {
     new Trigger(() -> controller.getPOV() == 180)
         .whileTrue(new armDownCommand(armSub));
 
-    // EXAMPLE =========================================================================
-    new Trigger(m_exampleSubsystem::exampleCondition)
-        .toggleOnTrue(new ExampleCommand(m_exampleSubsystem));
   }
 
   public Command getAutonomousCommand() {
-    return Autos.exampleAuto(m_exampleSubsystem);
+    return Autos.driveBackAndShoot(drive, turretShootSubSystem, conveySubSystem);
   }
 }
